@@ -112,7 +112,7 @@ vim.keymap.set("n", "<leader>s", "<cmd>MarblesMenu<cr>")
 ## Credits
 
 - Original concept and programming by LBS with AI assistance
-- Fork modifications by Clemens Nylandsted Klokmose
+- Fork modifications by Clemens Nylandsted Klokmose with AI assistance as well
 
 ## License
 
