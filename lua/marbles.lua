@@ -117,13 +117,25 @@ end
 
 -- OpenSSL interface
 local function run_openssl(input, mode, password)
-  local args = (mode == "encrypt")
-    and { "enc", "-aes-256-cbc", "-salt", "-base64", "-pbkdf2", "-iter", "600000", "-pass", "pass:" .. password }
-    or  { "enc", "-d", "-aes-256-cbc", "-base64", "-pbkdf2", "-iter", "600000", "-pass", "pass:" .. password }
-
-  local result = vim.fn.system({ get_openssl_cmd(), unpack(args) }, input)
-  local success = vim.v.shell_error == 0
-  return success, result
+  local cmd = get_openssl_cmd()
+  
+  if mode == "encrypt" then
+    local args = { "enc", "-aes-256-cbc", "-salt", "-base64", "-pbkdf2", "-iter", "600000", "-pass", "pass:" .. password }
+    local result = vim.fn.system({ cmd, unpack(args) }, input)
+    return vim.v.shell_error == 0, result
+  else
+    -- Decrypt: try new iteration count first, fall back to legacy
+    local args = { "enc", "-d", "-aes-256-cbc", "-base64", "-pbkdf2", "-iter", "600000", "-pass", "pass:" .. password }
+    local result = vim.fn.system({ cmd, unpack(args) }, input)
+    if vim.v.shell_error == 0 then
+      return true, result
+    end
+    
+    -- Fallback to legacy (default 10000 iterations)
+    local legacy_args = { "enc", "-d", "-aes-256-cbc", "-base64", "-pbkdf2", "-pass", "pass:" .. password }
+    result = vim.fn.system({ cmd, unpack(legacy_args) }, input)
+    return vim.v.shell_error == 0, result
+  end
 end
 
 -- Core processing
