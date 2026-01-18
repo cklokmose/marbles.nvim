@@ -118,8 +118,8 @@ end
 -- OpenSSL interface
 local function run_openssl(input, mode, password)
   local args = (mode == "encrypt")
-    and { "enc", "-aes-256-cbc", "-salt", "-base64", "-pbkdf2", "-pass", "pass:" .. password }
-    or  { "enc", "-d", "-aes-256-cbc", "-base64", "-pbkdf2", "-pass", "pass:" .. password }
+    and { "enc", "-aes-256-cbc", "-salt", "-base64", "-pbkdf2", "-iter", "600000", "-pass", "pass:" .. password }
+    or  { "enc", "-d", "-aes-256-cbc", "-base64", "-pbkdf2", "-iter", "600000", "-pass", "pass:" .. password }
 
   local result = vim.fn.system({ get_openssl_cmd(), unpack(args) }, input)
   local success = vim.v.shell_error == 0
