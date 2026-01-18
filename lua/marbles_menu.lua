@@ -1,8 +1,8 @@
--- ReadMe - marbles_menu.lua v1.0.1
+-- marbles_menu.lua v1.0.4-ck
 -- License: MIT
--- Concept and programming by LBS with AI assistance. 
--- Editing and testing done in Neovim.
--- Project URL: https://github.com/artstisen/marbles.nvim 
+-- Original concept and programming by LBS with AI assistance.
+-- Fork modifications by Clemens Nylandsted Klokmose.
+-- Project URL: https://github.com/cklokmose/marbles.nvim
 
 -- marbles_menu.lua
 local M = {}
@@ -108,7 +108,7 @@ function M.open_menu(opts)
     vim.api.nvim_win_close(win, true)
   end
 
-  vim.keymap.set('n', 'j', function()
+  local function move_down()
     local total = #menu_items
     if total == 0 then return end
 
@@ -121,9 +121,9 @@ function M.open_menu(opts)
     end
 
     refresh()
-  end, opts_keymap)
+  end
 
-  vim.keymap.set('n', 'k', function()
+  local function move_up()
     local total = #menu_items
     if total == 0 then return end
 
@@ -136,38 +136,27 @@ function M.open_menu(opts)
     end
 
     refresh()
-  end, opts_keymap)
+  end
 
-  vim.keymap.set('n', 'l', function()
+  local function select_item()
     if cursor >= 1 and cursor <= #menu_items then
       close()
       menu_items[cursor].action()
     end
-  end, opts_keymap)
+  end
 
-  vim.keymap.set('n', '<CR>', function()
-    if cursor >= 1 and cursor <= #menu_items then
-      close()
-      menu_items[cursor].action()
-    end
-  end, opts_keymap)
-
+  vim.keymap.set('n', 'j', move_down, opts_keymap)
+  vim.keymap.set('n', '<Down>', move_down, opts_keymap)
+  vim.keymap.set('n', 'k', move_up, opts_keymap)
+  vim.keymap.set('n', '<Up>', move_up, opts_keymap)
+  vim.keymap.set('n', 'l', select_item, opts_keymap)
+  vim.keymap.set('n', '<Right>', select_item, opts_keymap)
+  vim.keymap.set('n', '<CR>', select_item, opts_keymap)
   vim.keymap.set('n', 'q', close, opts_keymap)
   vim.keymap.set('n', '<Esc>', close, opts_keymap)
 
   refresh()
 end
-
-vim.api.nvim_create_user_command("Util", function()
-  M.open_menu({
-    title = "# Util Menu",
-    menu_items = {
-      { label = "Example item 1", action = function() print("Item 1 selected") end },
-      { label = "Example item 2", action = function() print("Item 2 selected") end },
-    },
-    footer = "Footer example here.",
-  })
-end, {})
 
 return M
 
